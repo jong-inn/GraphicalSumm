@@ -1,0 +1,9 @@
+pydub
+openai
+python-dotenv
+sentsplit
+tiktoken
+celery
+Flask
+Werkzeug
+gunicorn

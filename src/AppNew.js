@@ -21,6 +21,7 @@ import Visualization from './Visualization';
 import VisualizationOptions from './VisualizationOptions';
 import PromptOptions from './PromptOptions';
 import ButtonGroup from './ButtonGroup';
+import axios from 'axios';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
     const [transcriptPromptOpen, setTranscriptPromptOpen] = useState(false);
     const [transcriptPrompt, setTranscriptPrompt] = useState("");
     const [newTranscriptPrompt, setNewTranscriptPrompt] = useState("");
+    const [data, setData] = useState(null);
 
     // Visualization Options
     const handleVisOptions = (event) => {
@@ -80,13 +82,13 @@ function App() {
                         </Grid>
                         <Grid item md={12}>
                             <Typography variant="h6" component="h6" align="left" sx={{ ml: 2, mb: 1 }}>
-                                A Visualization Summary of Long Speeches
+                                A Visualization Summary of Meeting Notes
                             </Typography>
                         </Grid>
                     </Grid>
                     <Grid container columnSpacing={2}>
                         <Grid item md={8}>
-                            <Visualization />
+                            <Visualization data={data} />
                         </Grid>
                         <Grid item md={4}>
                             <Grid container rowSpacing={0.5}>
@@ -108,7 +110,7 @@ function App() {
                                     />
                                 </Grid>
                                 <Grid item md={12} sx={{ ml:1, mt: 2 }}>
-                                    <ButtonGroup />
+                                    <ButtonGroup transcriptPrompt={transcriptPrompt} setData={setData} />
                                 </Grid>
                             </Grid>
                         </Grid>

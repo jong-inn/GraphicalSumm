@@ -1,9 +1,12 @@
+requests
 pydub
 openai
 python-dotenv
 sentsplit
 tiktoken
-celery
 Flask
+flask-restful
+flask-restx
+flask-cors
 Werkzeug
 gunicorn

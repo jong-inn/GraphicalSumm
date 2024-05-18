@@ -6,92 +6,126 @@ import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { MuiFileInput } from "mui-file-input";
+import CircularProgress from '@mui/material/CircularProgress';
+import axios from 'axios';
 
-function ButtonGroup() {
-
+function ButtonGroup({ transcriptPrompt, setData }) {
     const [audioFile, setAudioFile] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(null);
-
     const [loaded, setLoaded] = useState(false);
+    const [running, setRunning] = useState(false);
     const [generated, setGenerated] = useState(false);
+    const [taskId, setTaskId] = useState(null);
+    const [fileName, setFileName] = useState("");
+    const [prompt, setPrompt] = useState(transcriptPrompt);
+    const [statusMessage, setStatusMessage] = useState("");
 
     const handleFileChange = (newAudioFile) => {
         setAudioFile(newAudioFile);
+        setFileName(newAudioFile.name);
+        console.log(`audioFile name: ${newAudioFile.name}`);
+        alert("File upload initiated");
         setUploadProgress(0); // Reset progress when a new file is selected
         uploadFile(newAudioFile);
+        // alert("File upload completed");
     };
-  
+
     const uploadFile = (file) => {
-        const xhr = new XMLHttpRequest();
         const formData = new FormData();
-        formData.append('file', file);
-  
-        // Update progress
+        formData.append("file", file);
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://localhost:3005/upload", true);
+
         xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {
-                const percentage = Math.round((event.loaded / event.total) * 100);
+                const percentage = Math.round((event.loaded * 100) / event.total);
                 setUploadProgress(percentage);
             }
         };
-  
-        xhr.open('POST', '/upload', true);
-  
+
         xhr.onload = () => {
-            if (xhr.status === 200) {
-                alert('File uploaded successfully');
+            if (xhr.status === 202) {
+                // alert("File upload initiated");
                 setLoaded(true);
             } else {
-                alert('Upload failed');
+                alert("Upload failed");
                 setLoaded(false);
             }
         };
-        xhr.onerror = () => alert('Upload error');
+
+        xhr.onerror = () => {
+            console.error("Error uploading file");
+            alert("Upload error");
+            setLoaded(false);
+        };
+
         xhr.send(formData);
-    };
-
-    const runTask = async () => {
-
-        try {
-            const response = await fetch("/run", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Network response was not ok.");
-            }
-            console.log("Completed.");
-        } catch (error) {
-            console.error("There was a problem with your fetch operation:", error);
-        }
-
+        // alert("File upload completed");
     };
 
     const startTask = () => {
-        fetch('/start-task', {method: 'POST'})
-            .then(response => response.json())
-            .then(data => checkStatus(data.task_id));
+        setRunning(true);
+        console.log(`audioFile name: ${fileName}`);
+        fetch('http://localhost:3005/start-task', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fileName: fileName,
+                prompt: prompt
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            setTaskId(data.task_id);
+            console.log(`startTask: ${data.task_id}`);
+            pollStatus(data.task_id);
+        });
     };
-    
-    const checkStatus = (taskId) => {
-        setTimeout(function() {
-            fetch(`/task-status/${taskId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.state === 'SUCCESS') {
-                        // Handle success, display results
-                        console.log(data.result);
-                    } else if (data.state !== 'FAILURE') {
-                        // Still pending, keep polling
-                        checkStatus(taskId);
-                    } else {
-                        // Handle failure
-                        console.error(data.status);
+
+    const pollStatus = (taskId) => {
+        const interval = setInterval(() => {
+            fetch(`http://localhost:3005/task-latest-message/${taskId}`)
+                .then(response => {
+                    console.log(`pollStatus, response status: ${response.status}`);
+                    if (response.status === 404) {
+                        // No messages yet, continue polling
+                        return null;
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.message) {
+                        setStatusMessage(data.message);
+                        if (data.message.includes("completed successfully") || data.message.includes("failed")) {
+                            clearInterval(interval);
+                            setRunning(false);
+                            if (data.message.includes("completed successfully")) {
+                                fetchJSONDictionary(taskId);
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching task status:", error);
+                    clearInterval(interval);
+                    setRunning(false);
                 });
         }, 2000); // Poll every 2 seconds
+    };
+
+    const fetchJSONDictionary = (taskId) => {
+        axios.get(`http://localhost:3005/get-js-file/${fileName}`)
+            .then(response => {
+                console.log(`fetchJSONDictionary: ${Object.keys(response.data.dictionary)}`);
+                setData(response.data.dictionary);
+                setGenerated(true);
+            })
+            .catch(error => {
+                console.error("Error fetching JavaScript file:", error);
+            });
     };
 
     return (
@@ -117,13 +151,18 @@ function ButtonGroup() {
                         </Typography>
                     </Box>
                 )}
+                {fileName && (
+                    <Typography variant="body2" color="textSecondary">
+                        {`Selected file: ${fileName}`}
+                    </Typography>
+                )}
             </Grid>
             <Grid item md={4}>
                 <Button 
-                    disabled={!loaded}
+                    disabled={!loaded || running}
                     variant="outlined" 
                     color="primary" 
-                    onClick={runTask}
+                    onClick={startTask}
                     style={{ 
                         maxWidth: "165px", 
                         maxHeight: "56px", 
@@ -133,11 +172,16 @@ function ButtonGroup() {
                         flexWrap: "wrap"
                     }}
                 >
-                    Start
+                    {running ? <CircularProgress size={24} /> : "Start"}
                 </Button>
+                {statusMessage && (
+                    <Typography variant="body2" color="textSecondary">
+                        {statusMessage}
+                    </Typography>
+                )}
             </Grid>
             <Grid item md={4}>
-                <Button
+                {/* <Button
                     disabled={!generated}
                     variant="outlined"
                     color="primary" 
@@ -150,7 +194,7 @@ function ButtonGroup() {
                         flexWrap: "wrap"
                 }}>
                     <RefreshIcon />
-                </Button>
+                </Button> */}
             </Grid>
         </Grid>
     );

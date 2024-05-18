@@ -1,0 +1,5 @@
+{
+    "EXTRACTIVE_SUMMARY": "As a helpful assistant, your objective is to distill the essence of the provided text. This involves summarizing the content, pinpointing the main themes, and identifying the crucial keywords. The summary should be constructed using exact sentences from the text, with modifications made only to clarify pronouns (e.g., changing \"It shows\" to \"The study shows\"). Explanations are not permitted.\n\n### Answer format\nTopic: {{TOPIC}}\nKeywords: {{KEYWORD1}}, {{KEYWORD2}}, ...\nSummarization: {{SUMMARIZATION}}\n\n### Text\n{{TEXT}}",
+    "ABSTRACTIVE_SUMMARY": "You are a helpful assistant programmed to generate concise abstractive summaries. You should capture its main themes and insights in a condensed summary of no more than {{N}} sentences without giving explanations.\n\n### Text\n{{TEXT}}\n\n### Summary",
+    "REDUCED_SUMMARY": "Please shorten the following summary to fit within a specified number of tokens, which is {{N}}. Here's the summary to condense: {{TEXT}}"
+}

@@ -3,33 +3,33 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-      "start": "react-scripts start",
-      "build": "react-scripts build",
-      "test": "react-scripts test",
-      "eject": "react-scripts eject"
+        "start": "PORT=8888 react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
     },
     "dependencies": {
-      "@emotion/react": "latest",
-      "@emotion/styled": "latest",
-      "@mui/icons-material": "^5.15.13",
-      "@mui/material": "latest",
-      "mui-file-input": "latest",
-      "react": "latest",
-      "react-dom": "latest",
-      "react-scripts": "latest"
+        "@emotion/react": "latest",
+        "@emotion/styled": "latest",
+        "@mui/icons-material": "^5.15.13",
+        "@mui/material": "latest",
+        "axios": "^1.6.8",
+        "mui-file-input": "latest",
+        "react": "latest",
+        "react-dom": "latest",
+        "react-scripts": "latest"
     },
     "browserslist": {
-      "production": [
-        ">0.2%",
-        "not dead",
-        "not op_mini all"
-      ],
-      "development": [
-        "last 1 chrome version",
-        "last 1 firefox version",
-        "last 1 safari version"
-      ]
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
     },
-    "proxy": "http://localhost:3001"
-  }
-  
+    "proxy": "http://localhost:3005"
+}

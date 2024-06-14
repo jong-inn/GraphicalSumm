@@ -31,7 +31,7 @@ function VisualizationOptions({ radioValue, radioOnChange }) {
                             onChange={radioOnChange}
                         >
                             <FormControlLabel value="topic-clustering" control={<Radio />} label="Topic Clustering" />
-                            <FormControlLabel value="timeline" control={<Radio />} label="Timeline" disabled />
+                            <FormControlLabel value="timeline" control={<Radio />} label="Timeline" />
                             {/* <FormControlLabel value="qna" control={<Radio />} label="Q & A" /> */}
                         </RadioGroup>
                     </FormControl>

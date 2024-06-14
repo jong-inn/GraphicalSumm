@@ -60,7 +60,7 @@ def upload_file():
 
     # Start the thread with the file data buffer
     threading.Thread(target=save_file, args=(file_data, filename)).start()
-    app.logger.info(f'File upload initiated: {file.filename}')
+    app.logger.info(f'File upload initiated: {filename}')
     return jsonify({'message': 'File upload initiated'}), 202
 
 def save_file(file_data, filename):
@@ -76,6 +76,7 @@ def save_file(file_data, filename):
 def start_task():
     info = request.get_json()
     file_name = info['fileName']
+    file_name = secure_filename(file_name)
     prompt = info.get('prompt', '')
     app.logger.info(f"start_task, prompt: {prompt}")
     task_id = str(uuid.uuid4())
@@ -102,6 +103,7 @@ def task_latest_message(task_id):
 def get_js_file(filename):
     try:
         # Adjust the path to match where the JS file is saved
+        filename = secure_filename(filename)
         folder_name = Path(filename)
         directory = Path(__file__).parent.joinpath('data', 'tree', folder_name.stem, 'json')
         json_folders = list(directory.iterdir())

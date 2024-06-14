@@ -31,15 +31,18 @@ function ButtonGroup({ transcriptPrompt, setData }) {
     };
 
     const uploadFile = (file) => {
+        console.log('Starting upload for:', file.name);
         const formData = new FormData();
         formData.append("file", file);
         
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:3005/upload", true);
+        // xhr.open("POST", "http://localhost:3005/upload", true);
+        xhr.open("POST", "https://graph-summ-backend.ngrok.dev/upload", true);
 
         xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {
                 const percentage = Math.round((event.loaded * 100) / event.total);
+                console.log('Upload progress:', percentage);
                 setUploadProgress(percentage);
             }
         };
@@ -67,7 +70,8 @@ function ButtonGroup({ transcriptPrompt, setData }) {
     const startTask = () => {
         setRunning(true);
         console.log(`audioFile name: ${fileName}`);
-        fetch('http://localhost:3005/start-task', {
+        // fetch('http://localhost:3005/start-task', {
+        fetch('https://graph-summ-backend.ngrok.dev/start-task', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -87,7 +91,8 @@ function ButtonGroup({ transcriptPrompt, setData }) {
 
     const pollStatus = (taskId) => {
         const interval = setInterval(() => {
-            fetch(`http://localhost:3005/task-latest-message/${taskId}`)
+            // fetch(`http://localhost:3005/task-latest-message/${taskId}`)
+            fetch(`https://graph-summ-backend.ngrok.dev/task-latest-message/${taskId}`)
                 .then(response => {
                     console.log(`pollStatus, response status: ${response.status}`);
                     if (response.status === 404) {
@@ -117,7 +122,8 @@ function ButtonGroup({ transcriptPrompt, setData }) {
     };
 
     const fetchJSONDictionary = (taskId) => {
-        axios.get(`http://localhost:3005/get-js-file/${fileName}`)
+        // axios.get(`http://localhost:3005/get-js-file/${fileName}`)
+        axios.get(`https://graph-summ-backend.ngrok.dev/get-js-file/${fileName}`)
             .then(response => {
                 console.log(`fetchJSONDictionary: ${Object.keys(response.data.dictionary)}`);
                 setData(response.data.dictionary);
